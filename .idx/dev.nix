@@ -11,6 +11,8 @@
     pkgs.ninja
     pkgs.gcc
     pkgs.clang
+    # Add Git to the environment
+    pkgs.git
     # Add Google Chrome to the environment
     pkgs.google-chrome
   ];

@@ -34,6 +34,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
     super.initState();
     _pageController.addListener(() {
       setState(() {
+        // Use .toInt() to prevent issues during page transitions
         _progress = (_pageController.page!.toInt() + 1) / _totalPages;
       });
     });
@@ -52,12 +53,14 @@ class _SurveyScreenState extends State<SurveyScreen> {
     );
   }
 
+  // The context is passed explicitly to ensure the correct one is used.
   Future<void> _submitSurvey(BuildContext context, SurveyProvider surveyProvider) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
+      if (!mounted) return;
       scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Error: You must be logged in.'), backgroundColor: Colors.red),
       );
@@ -78,6 +81,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
       scaffoldMessenger.showSnackBar(
         SnackBar(content: Text('Profile ${_isEditMode ? "updated" : "saved"} successfully!'), backgroundColor: Colors.green),
       );
+      // This pop will now execute correctly.
       navigator.pop();
     } else {
        scaffoldMessenger.showSnackBar(
@@ -91,9 +95,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
     return ChangeNotifierProvider(
       create: (_) => SurveyProvider(DogService())..loadInitialData(widget.dogToEdit),
       child: Consumer<SurveyProvider>(
-        builder: (context, surveyProvider, child) {
-          onSave() => _submitSurvey(context, surveyProvider);
-
+        builder: (consumerContext, surveyProvider, child) {
           return Scaffold(
             appBar: AppBar(
               title: Text(
@@ -113,12 +115,13 @@ class _SurveyScreenState extends State<SurveyScreen> {
               controller: _pageController,
               physics: const NeverScrollableScrollPhysics(),
               children: <Widget>[
-                SurveyPageWidget(pageTitle: "Guardian's Info", onNext: _nextPage, onSaveAndExit: onSave, child: const GuardianInfoPage()),
-                SurveyPageWidget(pageTitle: "Dog's Basic Info", onNext: _nextPage, onSaveAndExit: onSave, child: const DogBasicInfoPage()),
-                SurveyPageWidget(pageTitle: "Dog's Health", onNext: _nextPage, onSaveAndExit: onSave, child: const DogHealthPage()),
-                SurveyPageWidget(pageTitle: "Dog's Routine", onNext: _nextPage, onSaveAndExit: onSave, child: const DogRoutinePage()),
-                SurveyPageWidget(pageTitle: "Problem Behaviors", onNext: _nextPage, onSaveAndExit: onSave, child: const ProblemBehaviorsPage()),
-                SurveyPageWidget(pageTitle: "Training Goals", onNext: onSave, isLastPage: true, child: const TrainingGoalsPage()),
+                // Directly pass the lambda with the builder's context
+                SurveyPageWidget(pageTitle: "Guardian's Info", onNext: _nextPage, onSaveAndExit: () => _submitSurvey(consumerContext, surveyProvider), child: const GuardianInfoPage()),
+                SurveyPageWidget(pageTitle: "Dog's Basic Info", onNext: _nextPage, onSaveAndExit: () => _submitSurvey(consumerContext, surveyProvider), child: const DogBasicInfoPage()),
+                SurveyPageWidget(pageTitle: "Dog's Health", onNext: _nextPage, onSaveAndExit: () => _submitSurvey(consumerContext, surveyProvider), child: const DogHealthPage()),
+                SurveyPageWidget(pageTitle: "Dog's Routine", onNext: _nextPage, onSaveAndExit: () => _submitSurvey(consumerContext, surveyProvider), child: const DogRoutinePage()),
+                SurveyPageWidget(pageTitle: "Problem Behaviors", onNext: _nextPage, onSaveAndExit: () => _submitSurvey(consumerContext, surveyProvider), child: const ProblemBehaviorsPage()),
+                SurveyPageWidget(pageTitle: "Training Goals", onNext: () => _submitSurvey(consumerContext, surveyProvider), isLastPage: true, child: const TrainingGoalsPage()),
               ],
             ),
           );

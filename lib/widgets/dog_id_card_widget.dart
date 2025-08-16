@@ -5,11 +5,15 @@ import 'package:myapp/models/dog_model.dart';
 class DogIdCardWidget extends StatelessWidget {
   final Dog dog;
   final VoidCallback onEdit;
+  final VoidCallback onViewSkillTree;
+  final VoidCallback onViewInventory; // New callback for the inventory button
 
   const DogIdCardWidget({
     super.key,
     required this.dog,
     required this.onEdit,
+    required this.onViewSkillTree,
+    required this.onViewInventory, // Add to constructor
   });
 
   Map<String, dynamic> _calculateProfileStats() {
@@ -66,6 +70,7 @@ class DogIdCardWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -77,10 +82,7 @@ class DogIdCardWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   color: theme.colorScheme.secondaryContainer,
                 ),
-                child: const Icon(
-                  Icons.pets,
-                  size: 50,
-                ),
+                child: const Icon(Icons.pets, size: 50),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -89,29 +91,23 @@ class DogIdCardWidget extends StatelessWidget {
                   children: [
                     Text(
                       dog.name.toUpperCase(),
-                      style: GoogleFonts.pressStart2p(
-                        fontSize: 24,
-                        color: theme.colorScheme.primary,
-                      ),
+                      style: GoogleFonts.pressStart2p(fontSize: 24, color: theme.colorScheme.primary),
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       dog.breed,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontStyle: FontStyle.italic,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(fontStyle: FontStyle.italic),
                     ),
                   ],
                 ),
               ),
-              Text(
-                'LV. $level',
-                style: GoogleFonts.pressStart2p(fontSize: 18),
-              ),
+              Text('LV. $level', style: GoogleFonts.pressStart2p(fontSize: 18)),
             ],
           ),
           const SizedBox(height: 16),
+
+          // Profile Status
           Text('PROFILE STATUS', style: GoogleFonts.pressStart2p(fontSize: 12, color: theme.colorScheme.secondary)),
           const SizedBox(height: 8),
           LinearProgressIndicator(
@@ -120,25 +116,47 @@ class DogIdCardWidget extends StatelessWidget {
             minHeight: 12,
           ),
           const SizedBox(height: 16),
+
+          // Traits
           Text('NOTABLE TRAITS', style: GoogleFonts.pressStart2p(fontSize: 12, color: theme.colorScheme.secondary)),
           const SizedBox(height: 8),
           if (traits.isNotEmpty)
             Row(
-              children: traits
-                  .map((trait) => Chip(
+              children: traits.map((trait) => Chip(
                         label: Text(trait),
                         backgroundColor: theme.colorScheme.secondaryContainer,
-                      ))
-                  .toList(),
+                      )).toList(),
             )
           else
             const Text('No notable traits identified yet.'),
+
+          const Spacer(),
+
+          // Action Buttons
           Align(
             alignment: Alignment.bottomRight,
-            child: IconButton(
-              icon: const Icon(Icons.edit_note, size: 32),
-              tooltip: 'Edit Dog Profile',
-              onPressed: onEdit,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // New button to view the inventory
+                IconButton(
+                  icon: const Icon(Icons.inventory_2_outlined, size: 30),
+                  tooltip: 'View Inventory',
+                  onPressed: onViewInventory,
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.account_tree, size: 30),
+                  tooltip: 'View Skill Tree',
+                  onPressed: onViewSkillTree,
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.edit_note, size: 30),
+                  tooltip: 'Edit Dog Profile',
+                  onPressed: onEdit,
+                ),
+              ],
             ),
           )
         ],

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/screens/survey/survey_screen.dart';
+import 'package:myapp/screens/training/inventory_page.dart'; // Import the new InventoryPage
+import 'package:myapp/screens/training/skill_tree_page.dart';
 import 'package:myapp/services/dog_service.dart';
 import 'package:myapp/widgets/dog_id_card_widget.dart';
 
@@ -74,6 +76,21 @@ class _MyDogsPageState extends State<MyDogsPage> {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => SurveyScreen(dogToEdit: dog),
+                      ),
+                    );
+                  },
+                  onViewSkillTree: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SkillTreePage(dog: dog),
+                      ),
+                    );
+                  },
+                  // Add the navigation logic for the new inventory button
+                  onViewInventory: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => InventoryPage(dog: dog),
                       ),
                     );
                   },

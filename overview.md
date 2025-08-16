@@ -1,6 +1,6 @@
 # Pet Growth Partner: 프로젝트 아키텍처 개요 (Overview)
 
-**최종 수정:** 2025년 8월 18일
+**최종 수정:** 2025년 8월 19일
 
 ## 1. 개요
 
@@ -8,17 +8,7 @@
 
 ---
 
-## 2. 최상위 폴더 구조
-
-- **/lib**: Flutter 앱의 모든 Dart 소스 코드가 위치하는 메인 폴더입니다.
-- **/assets**: 앱에서 사용되는 이미지, 아이콘, 폰트 등의 정적 파일을 관리합니다.
-- **/android**, **/ios**, **/web**: 각 플랫폼별 네이티브 설정 및 코드를 포함합니다.
-- **blueprint.md**: 프로젝트의 개발 방향과 목표를 정의하는 최상위 기획 문서입니다.
-- **overview.md**: (바로 이 파일) 프로젝트의 기술적인 구조와 파일의 역할을 정의하는 설계 문서입니다.
-
----
-
-## 3. /lib 폴더 상세 구조
+## 2. /lib 폴더 상세 구조
 
 `/lib` 폴더는 기능별로 하위 폴더를 구성하여 관심사를 분리합니다.
 
@@ -27,42 +17,45 @@
 - **역할:** 앱의 시작점(Entry Point)입니다.
 - **주요 기능:**
     - Firebase 초기화
-    - `ChangeNotifierProvider`를 사용하여 `AuthService`와 같은 최상위 서비스를 앱 전체에 제공
-    - `AuthWrapper`를 통해 사용자의 인증 상태에 따라 `LoginPage` 또는 `HomePage`를 표시하는 로직 제어
+    - `ChangeNotifierProvider`를 사용하여 `AuthService` 제공
+    - `AuthWrapper`를 통해 인증 상태에 따라 `LoginPage` 또는 `HomePage` 표시
 
 ### 📂 /data
 
-- **역할:** 앱 전체에서 사용될 정적인 데이터 목록을 관리합니다. (예: 강아지 품종 목록, 스킬 데이터베이스 등)
-- **`skills_database.dart` (예정):** 앱에서 사용 가능한 모든 `Skill`의 정보를 미리 정의해 둔 로컬 데이터베이스입니다.
+- **역할:** 앱 전체에서 사용될 정적인 데이터 목록을 관리합니다.
+- **`skill_tree_database.dart` (✅ 완료):** 모든 `Skill`의 정보를 정의한 로컬 데이터베이스.
+- **`item_database.dart` (✅ 완료):** 모든 `Item`의 정보를 정의한 로컬 데이터베이스.
 
 ### 📂 /models
 
-- **역할:** Firestore 데이터베이스의 문서 구조를 Dart 클래스로 변환해주는 데이터 모델을 정의합니다.
-- **`dog_model.dart`:** `users/{userId}/dogs/{dogId}` 문서의 데이터를 담는 `Dog` 클래스입니다.
-- **`skill_model.dart` (예정):** 스킬의 정보를 담는 `Skill` 클래스입니다.
-- **`user_model.dart`:** `users/{userId}` 문서의 데이터를 담는 `UserModel` 클래스입니다.
+- **역할:** Firestore 데이터 구조를 Dart 클래스로 변환하는 데이터 모델을 정의합니다.
+- **`dog_model.dart` (✅ 완료):** `Dog` 클래스. 클래스, 스킬, 아이템 등 성장 시스템 필드를 포함.
+- **`skill_model.dart` (✅ 완료):** `Skill` 클래스.
+- **`item_model.dart` (✅ 완료):** `Item` 클래스.
+- **`user_model.dart` (✅ 완료):** `UserModel` 클래스.
 
 ### 📂 /screens
 
 - **역할:** 앱의 각 페이지(화면)에 해당하는 UI 위젯들을 관리합니다.
-- **/home_page.dart**: 로그인 후 가장 먼저 보게 되는 메인 대시보드 화면입니다.
-- **/login_page.dart**: 앱의 로그인 화면입니다. (개발 중에는 익명 인증 사용)
+- **/home_page.dart**: 메인 대시보드 화면.
+- **/login_page.dart**: 로그인 화면 (개발 중 익명 인증 사용).
 - **/my_dogs**:
-    - **my_dogs_page.dart**: 사용자가 등록한 모든 '디지털 신분증'(`DogIdCardWidget`)을 `PageView`로 보여주는 화면입니다.
+    - **my_dogs_page.dart**: '디지털 신분증' 목록을 보여주는 화면.
 - **/survey**:
-    - **survey_screen.dart**: 여러 페이지로 구성된 설문지의 전체적인 흐름(페이지 전환, 프로그레스 바, 제출 로직)을 관리하는 메인 컨테이너입니다.
-    - **/pages**: 설문지의 각 단계를 구성하는 개별 페이지 위젯들이 위치합니다.
-- **/training (예정)**:
-    - **training_page.dart**: AI가 생성한 '훈련 퀘스트' 목록을 보여주고, 사용자가 훈련 진행 상황을 기록하는 화면입니다.
+    - **survey_screen.dart**: 설문지의 전체 흐름을 관리하는 컨테이너.
+    - **/pages**: 설문지의 각 개별 페이지 위젯.
+- **/training**:
+    - **skill_tree_page.dart` (✅ 완료):** 클래스를 선택하고, TP를 투자하여 스킬을 배우는 화면.
+    - **inventory_page.dart` (✅ 완료):** 획득한 아이템을 보고 장착/해제하는 화면.
 
 ### 📂 /services
 
-- **역할:** Firebase와의 통신, AI 모델 호출 등 앱의 핵심 비즈니스 로직 및 백엔드 작업을 처리합니다. UI로부터 로직을 분리하는 중요한 역할을 합니다.
-- **`auth_service.dart`:** Firebase Authentication을 사용한 사용자 인증(익명, Google 등) 및 로그아웃 처리를 담당합니다.
-- **`dog_service.dart`:** Firestore의 `dogs` 컬렉션에 대한 데이터 생성(Create), 읽기(Read), 수정(Update), 삭제(Delete) 작업을 담당합니다.
-- **`ai_service.dart` (예정):** 사용자의 반려견 데이터를 입력받아 Gemma AI 모델을 호출하고, '맞춤 훈련 퀘스트'를 생성하여 반환하는 로직을 담당합니다.
+- **역할:** Firebase 통신 등 핵심 비즈니스 로직 및 백엔드 작업을 처리합니다.
+- **`auth_service.dart` (✅ 완료):** 사용자 인증 담당.
+- **`dog_service.dart` (✅ 완료):** 강아지 데이터 CRUD 및 스킬/아이템 장착 등 핵심 게임 로직 담당.
+- **`ai_service.dart` (예정):** AI 모델을 호출하여 '맞춤 훈련 퀘스트'를 생성하는 로직 담당.
 
 ### 📂 /widgets
 
 - **역할:** 여러 화면에서 재사용될 수 있는 공통 UI 컴포넌트를 관리합니다.
-- **`dog_id_card_widget.dart`:** '디지털 신분증'의 UI를 담당하는 핵심 위젯입니다. 반려견의 정보와 획득한 스킬 등을 시각적으로 표시합니다.
+- **`dog_id_card_widget.dart`:** '디지털 신분증'의 UI를 담당하는 핵심 위젯. (업데이트 필요)

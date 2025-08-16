@@ -9,10 +9,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
+  // Ensure that widget binding is initialized before Firebase.
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Persistence setting is removed to avoid redirection issues,
+  // as we are using anonymous auth for development.
+  
   runApp(const MyApp());
 }
 
@@ -23,7 +28,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     const seedColor = Colors.deepPurple;
 
-    // DogService is no longer a ChangeNotifier, so we only need to provide AuthService.
     return ChangeNotifierProvider(
       create: (context) => AuthService(),
       child: MaterialApp(
@@ -46,14 +50,12 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        // AuthWrapper correctly handles showing LoginPage or HomePage.
         home: const AuthWrapper(),
       ),
     );
   }
 }
 
-// AuthWrapper listens to authentication state and shows the correct screen.
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 

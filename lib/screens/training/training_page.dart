@@ -20,7 +20,6 @@ class _TrainingPageState extends State<TrainingPage> {
   @override
   void initState() {
     super.initState();
-    // Start fetching quests as soon as the page is loaded
     _questsFuture = _aiService.generateQuests(dog: widget.dog);
   }
 
@@ -46,40 +45,27 @@ class _TrainingPageState extends State<TrainingPage> {
       body: FutureBuilder<List<Quest>>(
         future: _questsFuture,
         builder: (context, snapshot) {
-          // --- Loading State ---
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('AI가 맞춤 퀘스트를 생성 중입니다...'),
-                ],
-              ),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
-          // --- Error State ---
           if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text('퀘스트 생성에 실패했습니다: ${snapshot.error}'),
-              ),
-            );
+            return Center(child: Text('Failed to generate quests: ${snapshot.error}'));
           }
-          // --- Empty State ---
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('생성된 퀘스트가 없습니다.'));
+            return const Center(child: Text('No quests available.'));
           }
 
-          // --- Success State ---
           final quests = snapshot.data!;
           return ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: quests.length,
             itemBuilder: (context, index) {
               final quest = quests[index];
+              // Displaying rewardMaterials instead of rewardTp
+              final rewardsText = quest.rewardMaterials.entries
+                  .map((e) => '${e.key} x${e.value}')
+                  .join(', ');
+
               return Card(
                 elevation: 4,
                 margin: const EdgeInsets.only(bottom: 16),
@@ -87,7 +73,7 @@ class _TrainingPageState extends State<TrainingPage> {
                   leading: const Icon(Icons.article_outlined, color: Colors.amber),
                   title: Text(quest.title, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text(quest.description),
-                  trailing: Text('+${quest.rewardTp} TP'),
+                  trailing: Text(rewardsText, style: const TextStyle(fontSize: 12)),
                 ),
               );
             },

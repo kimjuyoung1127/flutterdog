@@ -4,6 +4,8 @@ import 'package:myapp/data/item_database.dart';
 import 'package:myapp/data/material_database.dart';
 import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/models/item_model.dart';
+import 'package:myapp/models/material_model.dart' as data;
+import 'package:myapp/services/dog_service.dart';
 
 class InventoryPage extends StatefulWidget {
   final Dog dog;
@@ -18,7 +20,7 @@ class _InventoryPageState extends State<InventoryPage> with SingleTickerProvider
   late TabController _tabController;
   late Dog _currentDog;
   final DogService _dogService = DogService();
-  dynamic _selectedObject; // Can be an Item or a Material
+  dynamic _selectedObject;
 
   @override
   void initState() {
@@ -32,8 +34,6 @@ class _InventoryPageState extends State<InventoryPage> with SingleTickerProvider
     _tabController.dispose();
     super.dispose();
   }
-
-  // --- UI Building Methods ---
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +74,8 @@ class _InventoryPageState extends State<InventoryPage> with SingleTickerProvider
     if (equipment.isEmpty) return const Center(child: Text("No equipment found."));
 
     return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 4, crossAxisSpacing: 4),
+        padding: const EdgeInsets.all(8.0),
         itemCount: equipment.length,
         itemBuilder: (context, index) {
           final item = equipment[index];
@@ -86,11 +87,11 @@ class _InventoryPageState extends State<InventoryPage> with SingleTickerProvider
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  const Icon(Icons.shield, color: Colors.grey), // Placeholder
+                  const Icon(Icons.shield, color: Colors.grey),
                   Positioned(
                     bottom: 2,
                     right: 2,
-                    child: Text("x${_currentDog.inventory[item.id] ?? 0}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text("x${_currentDog.inventory[item.id] ?? 0}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87)),
                   ),
                 ],
               ),
@@ -100,33 +101,35 @@ class _InventoryPageState extends State<InventoryPage> with SingleTickerProvider
   }
 
   Widget _buildMaterialGrid() {
-    final materials = _getInventoryItems<dynamic>(MaterialDatabase.materials);
-     if (materials.isEmpty) return const Center(child: Text("No materials found."));
+    final materials = _getInventoryItems<data.Material>(MaterialDatabase.materials);
+    if (materials.isEmpty) return const Center(child: Text("No materials found."));
 
     return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4),
-        itemCount: materials.length,
-        itemBuilder: (context, index) {
-          final material = materials[index];
-           final isSelected = _selectedObject is Material && _selectedObject.id == material.id;
-          return InkWell(
-            onTap: () => setState(() => _selectedObject = material),
-             child: Card(
-              color: isSelected ? Colors.blue.shade100 : null,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  const Icon(Icons.build, color: Colors.grey), // Placeholder
-                  Positioned(
-                    bottom: 2,
-                    right: 2,
-                    child: Text("x${_currentDog.inventory[material.id] ?? 0}", style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 4, crossAxisSpacing: 4),
+      padding: const EdgeInsets.all(8.0),
+      itemCount: materials.length,
+      itemBuilder: (context, index) {
+        final material = materials[index];
+        final isSelected = _selectedObject is data.Material && _selectedObject.id == material.id;
+        return InkWell(
+          onTap: () => setState(() => _selectedObject = material),
+          child: Card(
+            color: isSelected ? Colors.blue.shade100 : null,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                const Icon(Icons.build, color: Colors.grey),
+                Positioned(
+                  bottom: 2,
+                  right: 2,
+                  child: Text("x${_currentDog.inventory[material.id] ?? 0}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87)),
+                ),
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
   
   Widget _buildDetailsPane() {
@@ -145,20 +148,20 @@ class _InventoryPageState extends State<InventoryPage> with SingleTickerProvider
           Text(name, style: GoogleFonts.pressStart2p(fontSize: 20)),
           const Divider(),
           Text(description),
-          // Add equip button only if the selected object is an Item
           if (_selectedObject is Item) ...[
+            const SizedBox(height: 8),
+            Text('Stats: ${(_selectedObject as Item).stats}'),
             const Spacer(),
             ElevatedButton(
-              onPressed: () { /* Equip logic here */ },
+              onPressed: () { /* Equip logic will be added here */ },
               child: const Text('Equip Item'),
             )
-          ]
+          ] else
+            const Spacer(),
         ],
       ),
     );
   }
-
-  // --- Helper Methods ---
 
   List<T> _getInventoryItems<T>(Map<String, T> database) {
     return _currentDog.inventory.keys

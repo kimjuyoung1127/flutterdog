@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "574272084535",
+    "project_id": "wanderai-metrb",
+    "storage_bucket": "wanderai-metrb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:574272084535:android:13d05bdec4355c77a97db2",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "574272084535-eh75m88i77aoqp3eglkcou4vrhqivh5m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOEGypfJX3vsymic-9ro6m1xlu7uEE5Ao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "574272084535-eh75m88i77aoqp3eglkcou4vrhqivh5m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "574272084535-cgoj3gfsnljle5a5hvgppce5cb7htj2i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.myapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

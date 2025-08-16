@@ -1,7 +1,5 @@
 import 'package:myapp/models/skill_model.dart';
 
-// This file acts as a local, static database for all skills available in the game.
-
 class SkillTreeDatabase {
   static final Map<String, Skill> skills = {
     // --- DEFAULT SKILL ---
@@ -10,14 +8,13 @@ class SkillTreeDatabase {
       name: '기초 훈련',
       description: '모든 성장의 기본이 되는 훈련입니다.',
       iconAsset: 'assets/icons/skills/common_book.png',
-      classType: SkillClassType.guardian, // Belongs to a base class
+      classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
-      requiredTp: 5, // A base TP
+      craftingMaterials: {'mat_courage_bone': 1}, // Example material
       tags: ['basic', 'common'],
     ),
 
     // === 🛡️ GUARDIAN CLASS ===
-    // --- Guardian's Oath Sub-Tree ---
     'guardian_house_training': const Skill(
       id: 'guardian_house_training',
       name: '하우스 적응',
@@ -25,7 +22,7 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_house.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
-      requiredTp: 1,
+      craftingMaterials: {'mat_calmness_fragment': 3},
       milestoneRewards: {3: 'item_fluffy_cushion'},
       tags: ['house', 'crate', 'place'],
     ),
@@ -36,7 +33,7 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_potty.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
-      requiredTp: 2,
+      craftingMaterials: {'mat_calmness_fragment': 5},
       milestoneRewards: {5: 'item_golden_pad'},
       tags: ['potty', 'toilet', 'elimination'],
     ),
@@ -47,11 +44,10 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_bite.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
-      requiredTp: 2,
+      craftingMaterials: {'mat_courage_bone': 3},
       milestoneRewards: {3: 'item_tug_toy'},
       tags: ['bite', 'mouthing', 'inhibition'],
     ),
-    // --- Knight's Discipline Sub-Tree ---
      'guardian_leash_manners': const Skill(
       id: 'guardian_leash_manners',
       name: '산책 예절',
@@ -59,14 +55,13 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_leash.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.knightsDiscipline,
-      requiredTp: 3,
+      craftingMaterials: {'mat_courage_bone': 5, 'mat_guardian_emblem': 1},
       milestoneRewards: {5: 'item_sturdy_harness'},
       tags: ['leash', 'walking', 'manners', 'pulling'],
     ),
-    // ... other skills will be added here following the same structure ...
+    // ... other skills will be added here ...
   };
 
-  // Helper function to get all skills for a specific class
   static List<Skill> getSkillsByClass(SkillClassType classType) {
     return skills.values.where((skill) => skill.classType == classType).toList();
   }

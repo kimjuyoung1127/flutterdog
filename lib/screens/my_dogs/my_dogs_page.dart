@@ -4,6 +4,7 @@ import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/screens/survey/survey_screen.dart';
 import 'package:myapp/screens/training/inventory_page.dart';
 import 'package:myapp/screens/training/skill_tree_page.dart';
+// import 'package:myapp/screens/training/training_page.dart'; // Will be created next
 import 'package:myapp/services/dog_service.dart';
 import 'package:myapp/widgets/dog_id_card_widget.dart';
 
@@ -21,21 +22,15 @@ class _MyDogsPageState extends State<MyDogsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'My Dog ID Cards',
-          style: GoogleFonts.pressStart2p(fontSize: 18),
-        ),
+        title: Text('My Dog ID Cards', style: GoogleFonts.pressStart2p(fontSize: 18)),
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        // --- BUTTON MOVED HERE ---
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 30),
             tooltip: 'Register a New Dog',
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const SurveyScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const SurveyScreen()),
               );
             },
           ),
@@ -59,17 +54,9 @@ class _MyDogsPageState extends State<MyDogsPage> {
                   children: [
                     const Icon(Icons.pets, size: 80, color: Colors.grey),
                     const SizedBox(height: 16),
-                    Text(
-                      'No Digital IDs Found!',
-                      style: GoogleFonts.pressStart2p(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
+                    Text('No Digital IDs Found!', style: GoogleFonts.pressStart2p(fontSize: 16), textAlign: TextAlign.center),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Tap the \'+\' button in the top right to create a new ID.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    const Text('Tap the \'+\' button in the top right to create a new ID.', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
                   ],
                 ),
               ),
@@ -86,26 +73,17 @@ class _MyDogsPageState extends State<MyDogsPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
                 child: DogIdCardWidget(
                   dog: dog,
-                  onEdit: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => SurveyScreen(dogToEdit: dog),
-                      ),
+                  onEdit: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => SurveyScreen(dogToEdit: dog))),
+                  onViewSkillTree: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => SkillTreePage(dog: dog))),
+                  onViewInventory: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => InventoryPage(dog: dog))),
+                  onViewTraining: () {
+                    // This will be enabled once TrainingPage is created
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('AI Training Page coming soon!')),
                     );
-                  },
-                  onViewSkillTree: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => SkillTreePage(dog: dog),
-                      ),
-                    );
-                  },
-                  onViewInventory: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => InventoryPage(dog: dog),
-                      ),
-                    );
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(builder: (context) => TrainingPage(dog: dog)),
+                    // );
                   },
                 ),
               );
@@ -113,7 +91,6 @@ class _MyDogsPageState extends State<MyDogsPage> {
           );
         },
       ),
-      // --- FAB REMOVED FROM HERE ---
     );
   }
 }

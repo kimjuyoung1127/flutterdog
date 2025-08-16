@@ -13,15 +13,12 @@ class Dog {
   final Map<String, dynamic> trainingGoals;
 
   // --- v5.0 Class Growth System ---
-  final String? dogClass; // e.g., 'guardian', 'sage', 'ranger', 'warrior'
+  final String? dogClass;
   final int trainingPoints;
-  // Map of Skill IDs to their current level, e.g., {'house_training': 2, 'leash_manners': 1}
   final Map<String, int> skills;
-  // List of Item IDs in the inventory
-  final List<String> inventory;
-  // Map of ItemSlots to Item IDs, e.g., {'head': 'item_smart_hat', 'body': 'item_sturdy_harness'}
+  // inventory is now a map to store the quantity of each item/material.
+  final Map<String, int> inventory; 
   final Map<String, String> equippedItems;
-  // Map to manage the training energy system
   final Map<String, dynamic> trainingEnergy;
 
 
@@ -34,66 +31,60 @@ class Dog {
     this.dogRoutine = const {},
     this.problemBehaviors = const {},
     this.trainingGoals = const {},
-    // Initialize new fields with default values
     this.dogClass,
     this.trainingPoints = 0,
     this.skills = const {},
-    this.inventory = const [],
+    this.inventory = const {}, // Default to an empty map
     this.equippedItems = const {},
     this.trainingEnergy = const {'currentValue': 100, 'lastUpdatedAt': null},
   });
 
-  // Helper getters
   String get name => dogBasicInfo['name'] as String? ?? 'Unnamed';
   String get breed => dogBasicInfo['breed'] as String? ?? 'Unknown Breed';
 
-  // Factory from Firestore
   factory Dog.fromFirestore(DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final data = snapshot.data()!;
+    // Safely parse the inventory from Firestore, defaulting to an empty map.
+    final inventoryData = data['inventory'] as Map?;
+    final inventory = inventoryData != null ? Map<String, int>.from(inventoryData) : <String, int>{};
+
     return Dog(
       id: snapshot.id,
       ownerId: data['ownerId'] as String,
-      // --- Original Fields ---
       guardianInfo: data['guardianInfo'] as Map<String, dynamic>? ?? {},
       dogBasicInfo: data['dogBasicInfo'] as Map<String, dynamic>? ?? {},
       dogHealthInfo: data['dogHealthInfo'] as Map<String, dynamic>? ?? {},
       dogRoutine: data['dogRoutine'] as Map<String, dynamic>? ?? {},
       problemBehaviors: data['problemBehaviors'] as Map<String, dynamic>? ?? {},
       trainingGoals: data['trainingGoals'] as Map<String, dynamic>? ?? {},
-      // --- New v5.0 Fields (with backward compatibility) ---
       dogClass: data['dogClass'] as String?,
       trainingPoints: data['trainingPoints'] as int? ?? 0,
       skills: Map<String, int>.from(data['skills'] as Map? ?? {}),
-      inventory: List<String>.from(data['inventory'] as List? ?? []),
+      inventory: inventory,
       equippedItems: Map<String, String>.from(data['equippedItems'] as Map? ?? {}),
       trainingEnergy: data['trainingEnergy'] as Map<String, dynamic>? ?? {'currentValue': 100, 'lastUpdatedAt': FieldValue.serverTimestamp()},
     );
   }
 
-  // Method to Firestore
   Map<String, dynamic> toFirestore() {
     return {
       'ownerId': ownerId,
-      // --- Original Fields ---
       'guardianInfo': guardianInfo,
       'dogBasicInfo': dogBasicInfo,
       'dogHealthInfo': dogHealthInfo,
       'dogRoutine': dogRoutine,
       'problemBehaviors': problemBehaviors,
       'trainingGoals': trainingGoals,
-      // --- New v5.0 Fields ---
       'dogClass': dogClass,
       'trainingPoints': trainingPoints,
       'skills': skills,
       'inventory': inventory,
       'equippedItems': equippedItems,
       'trainingEnergy': trainingEnergy,
-      // --- Metadata ---
       'lastUpdated': FieldValue.serverTimestamp(),
     };
   }
 
-  // copyWith method
   Dog copyWith({
     String? id,
     String? ownerId,
@@ -106,7 +97,7 @@ class Dog {
     String? dogClass,
     int? trainingPoints,
     Map<String, int>? skills,
-    List<String>? inventory,
+    Map<String, int>? inventory, // Updated type
     Map<String, String>? equippedItems,
     Map<String, dynamic>? trainingEnergy,
   }) {

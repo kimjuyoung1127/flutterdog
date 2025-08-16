@@ -8,10 +8,11 @@ class Skill {
   final String iconAsset;
   final SkillClassType classType;
   final SkillSubTree subTree;
-  final int requiredTp;
+  // requiredTp is replaced by craftingMaterials
+  final Map<String, int> craftingMaterials; // e.g., {'mat_courage_bone': 5, 'mat_calmness_fragment': 3}
   final int maxLevel;
   final Map<int, String> milestoneRewards; 
-  final List<String> tags; // New field for AI matching
+  final List<String> tags;
 
   const Skill({
     required this.id,
@@ -20,9 +21,9 @@ class Skill {
     required this.iconAsset,
     required this.classType,
     required this.subTree,
-    required this.requiredTp,
+    this.craftingMaterials = const {}, // Initialize with an empty map
     this.maxLevel = 5,
     this.milestoneRewards = const {},
-    this.tags = const [], // Initialize with an empty list
+    this.tags = const [],
   });
 }

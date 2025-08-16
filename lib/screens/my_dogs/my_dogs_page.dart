@@ -4,7 +4,7 @@ import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/screens/survey/survey_screen.dart';
 import 'package:myapp/screens/training/inventory_page.dart';
 import 'package:myapp/screens/training/skill_tree_page.dart';
-// import 'package:myapp/screens/training/training_page.dart'; // Will be created next
+import 'package:myapp/screens/training/training_page.dart'; // Import is now active
 import 'package:myapp/services/dog_service.dart';
 import 'package:myapp/widgets/dog_id_card_widget.dart';
 
@@ -77,13 +77,10 @@ class _MyDogsPageState extends State<MyDogsPage> {
                   onViewSkillTree: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => SkillTreePage(dog: dog))),
                   onViewInventory: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => InventoryPage(dog: dog))),
                   onViewTraining: () {
-                    // This will be enabled once TrainingPage is created
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('AI Training Page coming soon!')),
+                    // Navigation logic is now active.
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => TrainingPage(dog: dog)),
                     );
-                    // Navigator.of(context).push(
-                    //   MaterialPageRoute(builder: (context) => TrainingPage(dog: dog)),
-                    // );
                   },
                 ),
               );

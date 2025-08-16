@@ -28,7 +28,8 @@ class _SkillTreePageState extends State<SkillTreePage> {
     if (_currentDog.dogClass == null && _currentDog.id != null) {
       await _dogService.chooseDogClass(_currentDog.id!, classType.name);
       if (mounted) {
-        setState(() => _currentDog = _currentDog.copyWith(dogClass: classType.name));
+        setState(
+            () => _currentDog = _currentDog.copyWith(dogClass: classType.name));
       }
     }
   }
@@ -39,16 +40,21 @@ class _SkillTreePageState extends State<SkillTreePage> {
 
     try {
       if (_currentDog.id == null) throw Exception("Dog ID is null");
-      await _dogService.learnSkillWithMaterials(_currentDog.id!, skill.id);
+      await _dogService.learnSkill(
+          _currentDog.id!, skill.id); // Changed back to learnSkill
 
       if (mounted) {
         navigator.pop();
-        scaffoldMessenger.showSnackBar(SnackBar(content: Text('${skill.name} learned!'), backgroundColor: Colors.green));
+        scaffoldMessenger.showSnackBar(SnackBar(
+            content: Text('${skill.name} learned!'),
+            backgroundColor: Colors.green));
       }
     } catch (e) {
       if (mounted) {
         navigator.pop();
-        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Failed to learn skill: ${e.toString()}'), backgroundColor: Colors.red));
+        scaffoldMessenger.showSnackBar(SnackBar(
+            content: Text('Failed to learn skill: ${e.toString()}'),
+            backgroundColor: Colors.red));
       }
     }
   }
@@ -58,11 +64,14 @@ class _SkillTreePageState extends State<SkillTreePage> {
     if (_currentDog.dogClass == null) {
       return _buildClassSelectionUI();
     }
-    final skillsOfClass = SkillTreeDatabase.getSkillsByClass(SkillClassType.values.byName(_currentDog.dogClass!));
+    final skillsOfClass = SkillTreeDatabase.getSkillsByClass(
+        SkillClassType.values.byName(_currentDog.dogClass!));
     final subTrees = skillsOfClass.map((s) => s.subTree).toSet();
 
     return Scaffold(
-      appBar: AppBar(title: Text('${_currentDog.dogClass} Skill Tree', style: GoogleFonts.pressStart2p(fontSize: 20))),
+      appBar: AppBar(
+          title: Text('${_currentDog.dogClass} Skill Tree',
+              style: GoogleFonts.pressStart2p(fontSize: 20))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -70,8 +79,10 @@ class _SkillTreePageState extends State<SkillTreePage> {
             _buildHeader(),
             const SizedBox(height: 24),
             ...subTrees.map((subTree) {
-              final skillsInSubTree = skillsOfClass.where((s) => s.subTree == subTree).toList();
-              return _buildSkillSubTree(title: subTree.name, skills: skillsInSubTree);
+              final skillsInSubTree =
+                  skillsOfClass.where((s) => s.subTree == subTree).toList();
+              return _buildSkillSubTree(
+                  title: subTree.name, skills: skillsInSubTree);
             }),
           ],
         ),
@@ -81,7 +92,8 @@ class _SkillTreePageState extends State<SkillTreePage> {
 
   Widget _buildClassSelectionUI() {
     return Scaffold(
-      appBar: AppBar(title: Text('Choose a Class', style: GoogleFonts.pressStart2p())),
+      appBar: AppBar(
+          title: Text('Choose a Class', style: GoogleFonts.pressStart2p())),
       body: GridView.count(
         crossAxisCount: 2,
         padding: const EdgeInsets.all(16),
@@ -108,12 +120,20 @@ class _SkillTreePageState extends State<SkillTreePage> {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text('Available Materials: ${_currentDog.inventory}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Training Points: ${_currentDog.trainingPoints}',
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text('Materials: ${_currentDog.inventory}',
+              style: const TextStyle(fontSize: 14)),
+        ]),
       ),
     );
   }
 
-  Widget _buildSkillSubTree({required String title, required List<Skill> skills}) {
+  Widget _buildSkillSubTree(
+      {required String title, required List<Skill> skills}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -121,7 +141,8 @@ class _SkillTreePageState extends State<SkillTreePage> {
         const Divider(),
         const SizedBox(height: 16),
         Wrap(
-          spacing: 24.0, runSpacing: 24.0,
+          spacing: 24.0,
+          runSpacing: 24.0,
           children: skills.map((skill) => _buildSkillIcon(skill)).toList(),
         ),
         const SizedBox(height: 24),
@@ -132,7 +153,7 @@ class _SkillTreePageState extends State<SkillTreePage> {
   Widget _buildSkillIcon(Skill skill) {
     final currentLevel = _currentDog.skills[skill.id] ?? 0;
     final canLearn = _canAfford(skill) && currentLevel < skill.maxLevel;
-    
+
     Color borderColor = Colors.grey.shade400;
     if (currentLevel > 0) borderColor = Colors.amber;
     if (canLearn) borderColor = Colors.green;
@@ -142,7 +163,8 @@ class _SkillTreePageState extends State<SkillTreePage> {
       child: Column(
         children: [
           Container(
-            width: 64, height: 64,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
               border: Border.all(color: borderColor, width: 4),
               borderRadius: BorderRadius.circular(8),
@@ -151,19 +173,21 @@ class _SkillTreePageState extends State<SkillTreePage> {
             child: const Icon(Icons.star, size: 32),
           ),
           const SizedBox(height: 4),
-          Text('${skill.name} [$currentLevel/${skill.maxLevel}]', style: const TextStyle(fontSize: 12)),
+          Text('${skill.name} [$currentLevel/${skill.maxLevel}]',
+              style: const TextStyle(fontSize: 12)),
         ],
       ),
     );
   }
 
   bool _canAfford(Skill skill) {
+    if (_currentDog.trainingPoints < skill.requiredTp) return false;
     for (var entry in skill.craftingMaterials.entries) {
       if ((_currentDog.inventory[entry.key] ?? 0) < entry.value) return false;
     }
     return true;
   }
-  
+
   void _showSkillDialog(Skill skill, bool canLearn) {
     showDialog(
       context: context,
@@ -176,14 +200,19 @@ class _SkillTreePageState extends State<SkillTreePage> {
             children: [
               Text(skill.description),
               const SizedBox(height: 16),
+              Text('Required TP: ${skill.requiredTp}'),
               Text('Required Materials: ${skill.craftingMaterials}'),
               Text('Max Level: ${skill.maxLevel}'),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Close')),
+            TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Close')),
             if (canLearn)
-              ElevatedButton(onPressed: () => _handleLearnSkill(skill), child: const Text('Craft Skill')),
+              ElevatedButton(
+                  onPressed: () => _handleLearnSkill(skill),
+                  child: const Text('Craft Skill')),
           ],
         );
       },

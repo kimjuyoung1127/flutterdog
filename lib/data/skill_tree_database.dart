@@ -2,7 +2,6 @@ import 'package:myapp/models/skill_model.dart';
 
 class SkillTreeDatabase {
   static final Map<String, Skill> skills = {
-    // --- DEFAULT SKILL ---
     'common_basic_training': const Skill(
       id: 'common_basic_training',
       name: '기초 훈련',
@@ -10,11 +9,11 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/common_book.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
-      craftingMaterials: {'mat_courage_bone': 1}, // Example material
+      requiredTp: 10, // Base TP cost
+      craftingMaterials: {'mat_courage_bone': 1},
       tags: ['basic', 'common'],
     ),
 
-    // === 🛡️ GUARDIAN CLASS ===
     'guardian_house_training': const Skill(
       id: 'guardian_house_training',
       name: '하우스 적응',
@@ -22,6 +21,7 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_house.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
+      requiredTp: 20,
       craftingMaterials: {'mat_calmness_fragment': 3},
       milestoneRewards: {3: 'item_fluffy_cushion'},
       tags: ['house', 'crate', 'place'],
@@ -33,6 +33,7 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_potty.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
+      requiredTp: 30,
       craftingMaterials: {'mat_calmness_fragment': 5},
       milestoneRewards: {5: 'item_golden_pad'},
       tags: ['potty', 'toilet', 'elimination'],
@@ -44,6 +45,7 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_bite.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.guardiansOath,
+      requiredTp: 25,
       craftingMaterials: {'mat_courage_bone': 3},
       milestoneRewards: {3: 'item_tug_toy'},
       tags: ['bite', 'mouthing', 'inhibition'],
@@ -55,11 +57,11 @@ class SkillTreeDatabase {
       iconAsset: 'assets/icons/skills/guardian_leash.png',
       classType: SkillClassType.guardian,
       subTree: SkillSubTree.knightsDiscipline,
+      requiredTp: 50,
       craftingMaterials: {'mat_courage_bone': 5, 'mat_guardian_emblem': 1},
       milestoneRewards: {5: 'item_sturdy_harness'},
       tags: ['leash', 'walking', 'manners', 'pulling'],
     ),
-    // ... other skills will be added here ...
   };
 
   static List<Skill> getSkillsByClass(SkillClassType classType) {

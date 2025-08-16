@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/screens/survey/survey_screen.dart';
-import 'package:myapp/screens/training/inventory_page.dart'; // Import the new InventoryPage
+import 'package:myapp/screens/training/inventory_page.dart';
 import 'package:myapp/screens/training/skill_tree_page.dart';
 import 'package:myapp/services/dog_service.dart';
 import 'package:myapp/widgets/dog_id_card_widget.dart';
@@ -26,6 +26,20 @@ class _MyDogsPageState extends State<MyDogsPage> {
           style: GoogleFonts.pressStart2p(fontSize: 18),
         ),
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        // --- BUTTON MOVED HERE ---
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, size: 30),
+            tooltip: 'Register a New Dog',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const SurveyScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<List<Dog>>(
         stream: _dogService.getDogs(),
@@ -52,7 +66,7 @@ class _MyDogsPageState extends State<MyDogsPage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Tap the \'+\' button to create a new ID for your dog.',
+                      'Tap the \'+\' button in the top right to create a new ID.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 16),
                     ),
@@ -86,7 +100,6 @@ class _MyDogsPageState extends State<MyDogsPage> {
                       ),
                     );
                   },
-                  // Add the navigation logic for the new inventory button
                   onViewInventory: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -100,17 +113,7 @@ class _MyDogsPageState extends State<MyDogsPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const SurveyScreen(),
-            ),
-          );
-        },
-        tooltip: 'Register a New Dog',
-        child: const Icon(Icons.add),
-      ),
+      // --- FAB REMOVED FROM HERE ---
     );
   }
 }

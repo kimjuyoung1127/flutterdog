@@ -11,6 +11,7 @@ class DogIdCardWidget extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onViewSkillTree;
   final VoidCallback onViewInventory;
+  final VoidCallback onViewTraining; // New callback for the training/quest button
 
   const DogIdCardWidget({
     super.key,
@@ -18,9 +19,9 @@ class DogIdCardWidget extends StatelessWidget {
     required this.onEdit,
     required this.onViewSkillTree,
     required this.onViewInventory,
+    required this.onViewTraining, // Add to constructor
   });
 
-  // ... (helper methods like _calculateProfileStats remain the same)
   Map<String, dynamic> _calculateProfileStats() {
     int totalFields = 10;
     int completedFields = 0;
@@ -36,6 +37,7 @@ class DogIdCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ... existing build method structure ...
     final theme = Theme.of(context);
     final stats = _calculateProfileStats();
     final int level = stats['level'];
@@ -51,11 +53,8 @@ class DogIdCardWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // --- HEADER ---
           _buildHeader(context, level),
           const SizedBox(height: 24),
-
-          // --- CLASS & EQUIPMENT ---
           Row(
             children: [
               Expanded(child: _buildClassInfo(context)),
@@ -63,19 +62,15 @@ class DogIdCardWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-
-          // --- KEY SKILLS ---
           _buildKeySkills(context),
-          
           const Spacer(),
-
-          // --- ACTION BUTTONS ---
           _buildActionButtons(),
         ],
       ),
     );
   }
-
+  
+  // ... other build helper methods are the same ...
   Widget _buildHeader(BuildContext context, int level) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,6 +177,13 @@ class DogIdCardWidget extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // New button for training quests
+          IconButton(
+            icon: const Icon(Icons.article_outlined, size: 30),
+            tooltip: 'View Training Quests',
+            onPressed: onViewTraining,
+          ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.inventory_2_outlined, size: 30),
             tooltip: 'View Inventory',

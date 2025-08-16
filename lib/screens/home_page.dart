@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/screens/my_dogs/my_dogs_page.dart';
+// import 'package:myapp/screens/training/training_page.dart'; // Temporarily commented out
 import 'package:myapp/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
@@ -14,17 +15,12 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'PET PARTNER',
-          style: GoogleFonts.pressStart2p(fontSize: 20),
-        ),
+        title: Text('PET PARTNER', style: GoogleFonts.pressStart2p(fontSize: 20)),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
-            onPressed: () async {
-              await authService.signOut();
-            },
+            onPressed: () async => await authService.signOut(),
           ),
         ],
         backgroundColor: theme.colorScheme.surfaceContainerHighest,
@@ -35,26 +31,38 @@ class HomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Placeholder for a pixel art dog logo
-              const Icon(
-                Icons.pets, // Replace with a custom pixel art image later
-                size: 100,
-                color: Colors.brown,
-              ),
+              const Icon(Icons.pets, size: 100, color: Colors.brown),
               const SizedBox(height: 24),
-
               Text(
                 'Ready for an Adventure?',
                 style: GoogleFonts.pressStart2p(
                   fontSize: 18,
                   color: theme.colorScheme.primary,
-                  height: 1.5, // Line height for better readability
+                  height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
 
-              // Main action buttons
+              // --- Main action buttons ---
+              _buildMainMenuButton(
+                context,
+                icon: Icons.article_outlined,
+                label: '훈련 퀘스트',
+                onPressed: () {
+                  // Temporarily disabled until TrainingPage is created
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('대표 강아지를 먼저 선택해주세요.')),
+                  );
+                  // Navigator.of(context).push(
+                  //   MaterialPageRoute(
+                  //     // TODO: We need to pass the currently selected dog here
+                  //     builder: (context) => const TrainingPage(),
+                  //   ),
+                  // );
+                },
+              ),
+              const SizedBox(height: 20),
               _buildMainMenuButton(
                 context,
                 icon: Icons.credit_card,
@@ -68,13 +76,11 @@ class HomePage extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 20),
-              
               _buildMainMenuButton(
                 context,
                 icon: Icons.map_outlined,
                 label: '산책 시작하기',
                 onPressed: () {
-                  // TODO: Implement the GPS walk feature
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('산책 기능은 곧 추가될 예정입니다!')),
                   );
@@ -87,7 +93,6 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // A helper widget to create styled menu buttons
   Widget _buildMainMenuButton(
     BuildContext context, {
     required IconData icon,
@@ -96,17 +101,12 @@ class HomePage extends StatelessWidget {
   }) {
     return ElevatedButton.icon(
       icon: Icon(icon, size: 28),
-      label: Text(
-        label,
-        style: GoogleFonts.pressStart2p(fontSize: 16),
-      ),
+      label: Text(label, style: GoogleFonts.pressStart2p(fontSize: 16)),
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: Theme.of(context).colorScheme.primary,
-        minimumSize: const Size(double.infinity, 60), // Make buttons wide
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+        minimumSize: const Size(double.infinity, 60),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
         side: const BorderSide(color: Colors.black, width: 2),
       ),
       onPressed: onPressed,

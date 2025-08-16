@@ -1,4 +1,6 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/screens/home_page.dart';
@@ -9,14 +11,22 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  // Ensure that widget binding is initialized before Firebase.
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
-  // Persistence setting is removed to avoid redirection issues,
-  // as we are using anonymous auth for development.
+
+  // Activate Firebase App Check for security.
+  // This is required for using Firebase AI.
+  await FirebaseAppCheck.instance.activate(
+    // Use the debug provider in debug mode.
+    // You will need to configure a real provider for production.
+    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    // For Android, use Play Integrity or a debug provider.
+    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    // For Apple platforms, use Device Check or a debug provider.
+    appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
+  );
   
   runApp(const MyApp());
 }

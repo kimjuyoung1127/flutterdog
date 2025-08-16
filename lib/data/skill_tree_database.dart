@@ -4,6 +4,18 @@ import 'package:myapp/models/skill_model.dart';
 
 class SkillTreeDatabase {
   static final Map<String, Skill> skills = {
+    // --- DEFAULT SKILL ---
+    'common_basic_training': const Skill(
+      id: 'common_basic_training',
+      name: '기초 훈련',
+      description: '모든 성장의 기본이 되는 훈련입니다.',
+      iconAsset: 'assets/icons/skills/common_book.png',
+      classType: SkillClassType.guardian, // Belongs to a base class
+      subTree: SkillSubTree.guardiansOath,
+      requiredTp: 5, // A base TP
+      tags: ['basic', 'common'],
+    ),
+
     // === 🛡️ GUARDIAN CLASS ===
     // --- Guardian's Oath Sub-Tree ---
     'guardian_house_training': const Skill(
@@ -15,6 +27,7 @@ class SkillTreeDatabase {
       subTree: SkillSubTree.guardiansOath,
       requiredTp: 1,
       milestoneRewards: {3: 'item_fluffy_cushion'},
+      tags: ['house', 'crate', 'place'],
     ),
     'guardian_potty_training': const Skill(
       id: 'guardian_potty_training',
@@ -25,6 +38,7 @@ class SkillTreeDatabase {
       subTree: SkillSubTree.guardiansOath,
       requiredTp: 2,
       milestoneRewards: {5: 'item_golden_pad'},
+      tags: ['potty', 'toilet', 'elimination'],
     ),
     'guardian_bite_inhibition': const Skill(
       id: 'guardian_bite_inhibition',
@@ -35,6 +49,7 @@ class SkillTreeDatabase {
       subTree: SkillSubTree.guardiansOath,
       requiredTp: 2,
       milestoneRewards: {3: 'item_tug_toy'},
+      tags: ['bite', 'mouthing', 'inhibition'],
     ),
     // --- Knight's Discipline Sub-Tree ---
      'guardian_leash_manners': const Skill(
@@ -46,6 +61,7 @@ class SkillTreeDatabase {
       subTree: SkillSubTree.knightsDiscipline,
       requiredTp: 3,
       milestoneRewards: {5: 'item_sturdy_harness'},
+      tags: ['leash', 'walking', 'manners', 'pulling'],
     ),
     // ... other skills will be added here following the same structure ...
   };

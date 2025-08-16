@@ -10,8 +10,8 @@ class Skill {
   final SkillSubTree subTree;
   final int requiredTp;
   final int maxLevel;
-  // Defines rewards at specific levels, e.g., {3: "item_id_1", 5: "item_id_2"}
   final Map<int, String> milestoneRewards; 
+  final List<String> tags; // New field for AI matching
 
   const Skill({
     required this.id,
@@ -21,7 +21,8 @@ class Skill {
     required this.classType,
     required this.subTree,
     required this.requiredTp,
-    this.maxLevel = 5, // Default max level for most skills
+    this.maxLevel = 5,
     this.milestoneRewards = const {},
+    this.tags = const [], // Initialize with an empty list
   });
 }

@@ -11,10 +11,12 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  # Update Firebase packages to the latest stable versions
+  # Firebase packages updated for the new Firebase AI SDK
   firebase_core: ^3.1.0
   cloud_firestore: ^5.0.0
   firebase_auth: ^5.1.0
+  firebase_vertexai: ^1.0.0 # ^0.1.0+1 에서 최신 안정 버전으로 변경
+  firebase_app_check: ^0.3.2+10 # Required for Firebase AI security
   
   kakao_flutter_sdk_user: ^1.9.7+3
   provider: ^6.1.5

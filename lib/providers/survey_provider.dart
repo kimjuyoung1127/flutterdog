@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/services/dog_service.dart';
+import 'package:flutter/foundation.dart';
 
 class SurveyProvider with ChangeNotifier {
   final DogService _dogService;
@@ -73,11 +74,16 @@ class SurveyProvider with ChangeNotifier {
       trainingGoals: _trainingGoals ?? {},
     );
 
+    debugPrint('[SurveyProvider.submitSurvey] mode=${isEditMode ? 'edit' : 'create'} '
+        'userId=$userId dogId=${dogId ?? '(new)'} name=${dog.dogBasicInfo['name']} breed=${dog.dogBasicInfo['breed']}');
+
     try {
       if (isEditMode) {
         await _dogService.updateDog(dog);
+        debugPrint('[SurveyProvider.submitSurvey] updateDog OK id=${dog.id}');
       } else {
         await _dogService.addDog(dog);
+        debugPrint('[SurveyProvider.submitSurvey] addDog OK');
       }
       _isLoading = false;
       notifyListeners();
@@ -86,6 +92,7 @@ class SurveyProvider with ChangeNotifier {
       _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
+      debugPrint('[SurveyProvider.submitSurvey] ERROR: $_errorMessage');
       return false;
     }
   }

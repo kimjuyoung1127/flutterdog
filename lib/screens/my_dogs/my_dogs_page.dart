@@ -7,6 +7,7 @@ import 'package:myapp/screens/training/skill_tree_page.dart';
 import 'package:myapp/screens/training/training_page.dart'; // Import is now active
 import 'package:myapp/services/dog_service.dart';
 import 'package:myapp/widgets/dog_id_card_widget.dart';
+import 'package:flutter/foundation.dart';
 
 class MyDogsPage extends StatefulWidget {
   const MyDogsPage({super.key});
@@ -40,12 +41,15 @@ class _MyDogsPageState extends State<MyDogsPage> {
         stream: _dogService.getDogs(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
+            debugPrint('[MyDogsPage] Stream waiting...');
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
+            debugPrint('[MyDogsPage] Stream error: ${snapshot.error}');
             return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            debugPrint('[MyDogsPage] Stream empty or no data.');
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
@@ -64,11 +68,13 @@ class _MyDogsPageState extends State<MyDogsPage> {
           }
 
           final dogs = snapshot.data!;
+          debugPrint('[MyDogsPage] Stream data received. count=${dogs.length}');
 
           return PageView.builder(
             itemCount: dogs.length,
             itemBuilder: (context, index) {
               final dog = dogs[index];
+              debugPrint('[MyDogsPage] Rendering dog card index=$index id=${dog.id} name=${dog.name}');
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
                 child: DogIdCardWidget(

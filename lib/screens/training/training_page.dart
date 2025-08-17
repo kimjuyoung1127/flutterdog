@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/models/quest_model.dart';
-import 'package:myapp/services/ai_service.dart';
+import 'package:myapp/screens/training/quest_detail_screen.dart'; // Import the detail screen
+import 'package:myapp/services/mock_ai_service.dart';
+import 'package:myapp/widgets/quest_card_widget.dart';
 
 class TrainingPage extends StatefulWidget {
   final Dog dog;
@@ -14,7 +16,7 @@ class TrainingPage extends StatefulWidget {
 }
 
 class _TrainingPageState extends State<TrainingPage> {
-  final AIService _aiService = AIService();
+  final MockAIService _aiService = MockAIService(); 
   late Future<List<Quest>> _questsFuture;
 
   @override
@@ -32,8 +34,11 @@ class _TrainingPageState extends State<TrainingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFD7CCC8), 
       appBar: AppBar(
         title: Text('${widget.dog.name}\'s Quests', style: GoogleFonts.pressStart2p()),
+        backgroundColor: const Color(0xFF4E342E),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -46,13 +51,27 @@ class _TrainingPageState extends State<TrainingPage> {
         future: _questsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('AI가 새로운 의뢰를 찾고 있습니다...'),
+                ],
+              ),
+            );
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Failed to generate quests: ${snapshot.error}'));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('의뢰를 받는 데 실패했습니다: ${snapshot.error}'),
+              ),
+            );
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No quests available.'));
+            return const Center(child: Text('수주할 의뢰가 없습니다.'));
           }
 
           final quests = snapshot.data!;
@@ -61,19 +80,18 @@ class _TrainingPageState extends State<TrainingPage> {
             itemCount: quests.length,
             itemBuilder: (context, index) {
               final quest = quests[index];
-              // Displaying rewardMaterials instead of rewardTp
-              final rewardsText = quest.rewardMaterials.entries
-                  .map((e) => '${e.key} x${e.value}')
-                  .join(', ');
-
-              return Card(
-                elevation: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                child: ListTile(
-                  leading: const Icon(Icons.article_outlined, color: Colors.amber),
-                  title: Text(quest.title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(quest.description),
-                  trailing: Text(rewardsText, style: const TextStyle(fontSize: 12)),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: QuestCardWidget(
+                  quest: quest,
+                  onAccept: () {
+                    // --- NAVIGATION LOGIC ADDED HERE ---
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => QuestDetailScreen(quest: quest),
+                      ),
+                    );
+                  },
                 ),
               );
             },

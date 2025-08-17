@@ -3,18 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/models/quest_model.dart';
+import 'package:myapp/models/training_result_model.dart';
+import 'package:myapp/screens/training/log_session_screen.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
   final Dog dog;
   final Quest quest;
 
-  const TrainingSessionScreen({super.key, required this.dog, required this.quest});
+  const TrainingSessionScreen(
+      {super.key, required this.dog, required this.quest});
 
   @override
   State<TrainingSessionScreen> createState() => _TrainingSessionScreenState();
 }
 
-class _TrainingSessionScreenState extends State<TrainingSessionScreen> with TickerProviderStateMixin {
+class _TrainingSessionScreenState extends State<TrainingSessionScreen>
+    with TickerProviderStateMixin {
   int _successCount = 0;
   final int _goalCount = 5;
   double _focusLevel = 1.0;
@@ -22,7 +26,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
   bool _isClickable = true;
   int _cooldownSeconds = 3;
   bool _isPaused = false;
-  
+
   Timer? _focusTimer;
   Timer? _cooldownTimer;
   AnimationController? _cooldownAnimationController;
@@ -64,7 +68,9 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
       _successCount++;
       _focusLevel = (_focusLevel + 0.2).clamp(0.0, 1.0);
     });
-    _cooldownAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..forward();
+    _cooldownAnimationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 3))
+          ..forward();
     _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_cooldownSeconds > 1) {
         setState(() => _cooldownSeconds--);
@@ -111,8 +117,29 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
     );
   }
 
-  void _handleTrainingSuccess() { /* TODO: Navigate to LogSessionScreen */ }
-  void _handleTrainingFailed() { /* TODO: Navigate to LogSessionScreen */ }
+  void _navigateToLogScreen(bool isSuccess) {
+    _focusTimer?.cancel();
+    _cooldownTimer?.cancel();
+    final result = TrainingResult(
+      isSuccess: isSuccess,
+      successCount: _successCount,
+      maxCombo: _comboCount,
+      quest: widget.quest,
+    );
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => LogSessionScreen(dog: widget.dog, result: result),
+      ),
+    );
+  }
+
+  void _handleTrainingSuccess() {
+    _navigateToLogScreen(true);
+  }
+
+  void _handleTrainingFailed() {
+    _navigateToLogScreen(false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +149,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.white,
-        title: Text(widget.quest.title, style: GoogleFonts.pressStart2p(fontSize: 16)),
+        title: Text(widget.quest.title,
+            style: GoogleFonts.pressStart2p(fontSize: 16)),
         actions: [
           IconButton(
             icon: Icon(_isPaused ? Icons.play_arrow : Icons.pause),
@@ -152,7 +180,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("기력 (Stamina)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        Text("기력 (Stamina)",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Container(
           height: 25,
@@ -172,18 +201,20 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
       ],
     );
   }
-  
+
   Widget _buildSuccessAndChainCounter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           '성공: $_successCount / $_goalCount',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
-          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+          transitionBuilder: (child, animation) =>
+              ScaleTransition(scale: animation, child: child),
           child: Text(
             '$_comboCount CHAIN!',
             key: ValueKey<int>(_comboCount),
@@ -204,7 +235,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
       ),
       child: Text(
         "훈련 교관: 파트너에게 '${widget.quest.title}'을(를) 유도하게!",
-        style: const TextStyle(color: Colors.white, fontSize: 16, fontStyle: FontStyle.italic, height: 1.5),
+        style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontStyle: FontStyle.italic,
+            height: 1.5),
         textAlign: TextAlign.center,
       ),
     );
@@ -230,15 +265,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
     return Container(
       key: const ValueKey('active'),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.transparent,
-        border: Border.all(color: Colors.cyanAccent, width: 2),
-        boxShadow: [
-          BoxShadow(blurRadius: 20, color: Colors.cyan)
-        ]
-      ),
+          shape: BoxShape.circle,
+          color: Colors.transparent,
+          border: Border.all(color: Colors.cyanAccent, width: 2),
+          boxShadow: [BoxShadow(blurRadius: 20, color: Colors.cyan)]),
       child: Center(
-        child: Text("TAP!", style: GoogleFonts.pressStart2p(fontSize: 32, color: Colors.cyanAccent)),
+        child: Text("TAP!",
+            style: GoogleFonts.pressStart2p(
+                fontSize: 32, color: Colors.cyanAccent)),
       ),
     );
   }
@@ -249,15 +283,17 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
       alignment: Alignment.center,
       children: [
         SizedBox(
-          height: 180, width: 180,
+          height: 180,
+          width: 180,
           child: CircularProgressIndicator(
             value: 1.0 - ((_cooldownAnimationController?.value ?? 0)),
             strokeWidth: 4,
             valueColor: const AlwaysStoppedAnimation<Color>(Colors.cyanAccent),
-            backgroundColor: Colors.grey.withOpacity(0.3),
+            backgroundColor: Colors.black.withOpacity(0.5),
           ),
         ),
-        Text("$_cooldownSeconds", style: GoogleFonts.pressStart2p(fontSize: 32, color: Colors.grey)),
+        Text("$_cooldownSeconds",
+            style: GoogleFonts.pressStart2p(fontSize: 32, color: Colors.grey)),
       ],
     );
   }

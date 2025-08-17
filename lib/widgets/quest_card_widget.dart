@@ -14,7 +14,7 @@ class QuestCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    Theme.of(context);
     
     // Placeholder for quest rank logic (e.g., based on reward TP)
     final int rank = (quest.rewardTp / 10).clamp(1, 5).toInt();

@@ -19,7 +19,7 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Dog _currentDog;
-  final DogService _dogService = DogService(); // This will be unused again, as requested.
+  final DogService _dogService = DogService();
   dynamic _selectedObject;
 
   @override
@@ -154,8 +154,7 @@ class _InventoryPageState extends State<InventoryPage> with SingleTickerProvider
             Text('Stats: ${(_selectedObject as Item).stats}'),
             const Spacer(),
             ElevatedButton(
-              // Logic is now removed as requested by rollback.
-              onPressed: () {},
+              onPressed: () { /* Equip logic to be implemented */ },
               child: const Text('Equip Item'),
             )
           ] else

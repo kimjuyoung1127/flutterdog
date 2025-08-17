@@ -15,7 +15,6 @@ class TrainingSessionScreen extends StatefulWidget {
 }
 
 class _TrainingSessionScreenState extends State<TrainingSessionScreen> with TickerProviderStateMixin {
-  // --- State Management ---
   int _successCount = 0;
   final int _goalCount = 5;
   double _focusLevel = 1.0;
@@ -42,7 +41,6 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
     super.dispose();
   }
 
-  // --- Core Logic (with pause/resume functionality) ---
   void _startFocusTimer() {
     if (_isPaused) return;
     _focusTimer?.cancel();
@@ -58,9 +56,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
 
   void _onSuccessClick() {
     if (!_isClickable) return;
-    
     _focusTimer?.cancel();
-
     setState(() {
       _isClickable = false;
       _cooldownSeconds = 3;
@@ -68,9 +64,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
       _successCount++;
       _focusLevel = (_focusLevel + 0.2).clamp(0.0, 1.0);
     });
-    
     _cooldownAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..forward();
-
     _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_cooldownSeconds > 1) {
         setState(() => _cooldownSeconds--);
@@ -85,44 +79,140 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
       }
     });
   }
-  
+
   void _showPauseDialog() {
     setState(() => _isPaused = true);
     _focusTimer?.cancel();
     _cooldownTimer?.cancel();
-
-    showDialog(context: context, builder: (context) => AlertDialog(/* ... */));
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Training Paused'),
+        content: const Text('What would you like to do?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() => _isPaused = false);
+              _startFocusTimer();
+            },
+            child: const Text('Continue'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text('Give Up Training'),
+          ),
+        ],
+      ),
+    );
   }
-  
-  void _handleTrainingSuccess() { /* ... */ }
-  void _handleTrainingFailed() { /* ... */ }
 
-  // --- UI Building ---
+  void _handleTrainingSuccess() { /* TODO: Navigate to LogSessionScreen */ }
+  void _handleTrainingFailed() { /* TODO: Navigate to LogSessionScreen */ }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ... (Scaffold and AppBar from before)
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: Colors.white,
+        title: Text(widget.quest.title, style: GoogleFonts.pressStart2p(fontSize: 16)),
+        actions: [
+          IconButton(
+            icon: Icon(_isPaused ? Icons.play_arrow : Icons.pause),
+            onPressed: _showPauseDialog,
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            // ... (Header UI from before)
-            const Spacer(),
+            _buildStaminaBar(),
+            const SizedBox(height: 16),
+            _buildSuccessAndChainCounter(),
+            const SizedBox(height: 32),
             _buildInstructorDialogue(),
             const Spacer(),
-            _buildMagicCircleClicker(), // This is the widget to update
+            _buildMagicCircleClicker(),
             const Spacer(flex: 2),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildStaminaBar() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("기력 (Stamina)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Container(
+          height: 25,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade700, width: 2),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              value: _focusLevel,
+              backgroundColor: Colors.transparent,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+            ),
+          ),
+        )
+      ],
+    );
+  }
   
-  // ... (Other build helpers: _buildStaminaBar, _buildChainCounter, _buildInstructorDialogue)
-  
+  Widget _buildSuccessAndChainCounter() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          '성공: $_successCount / $_goalCount',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+          child: Text(
+            '$_comboCount CHAIN!',
+            key: ValueKey<int>(_comboCount),
+            style: GoogleFonts.pressStart2p(fontSize: 28, color: Colors.amber),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInstructorDialogue() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.5),
+        border: Border.all(color: Colors.blueGrey),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        "훈련 교관: 파트너에게 '${widget.quest.title}'을(를) 유도하게!",
+        style: const TextStyle(color: Colors.white, fontSize: 16, fontStyle: FontStyle.italic, height: 1.5),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   Widget _buildMagicCircleClicker() {
     return GestureDetector(
-      onTap: _onSuccessClick, // Logic is now connected
+      onTap: _onSuccessClick,
       child: SizedBox(
         height: 180,
         width: 180,
@@ -137,15 +227,18 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
   }
 
   Widget _buildActiveMagicCircle() {
-    return Center(
+    return Container(
       key: const ValueKey('active'),
-      child: Text(
-        "TAP!",
-        style: GoogleFonts.pressStart2p(
-          fontSize: 32,
-          color: Colors.cyanAccent,
-          shadows: [const Shadow(blurRadius: 20, color: Colors.cyan)]
-        ),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.transparent,
+        border: Border.all(color: Colors.cyanAccent, width: 2),
+        boxShadow: [
+          BoxShadow(blurRadius: 20, color: Colors.cyan)
+        ]
+      ),
+      child: Center(
+        child: Text("TAP!", style: GoogleFonts.pressStart2p(fontSize: 32, color: Colors.cyanAccent)),
       ),
     );
   }
@@ -155,22 +248,16 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> with Tick
       key: const ValueKey('cooldown'),
       alignment: Alignment.center,
       children: [
-        // Animated circular border for cooldown
-        AnimatedBuilder(
-          animation: _cooldownAnimationController!,
-          builder: (context, child) {
-            return CircularProgressIndicator(
-              value: _cooldownAnimationController!.value,
-              strokeWidth: 10,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.cyanAccent),
-              backgroundColor: Colors.grey.withOpacity(0.3),
-            );
-          },
+        SizedBox(
+          height: 180, width: 180,
+          child: CircularProgressIndicator(
+            value: 1.0 - ((_cooldownAnimationController?.value ?? 0)),
+            strokeWidth: 4,
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.cyanAccent),
+            backgroundColor: Colors.grey.withOpacity(0.3),
+          ),
         ),
-        Text(
-          "$_cooldownSeconds",
-          style: GoogleFonts.pressStart2p(fontSize: 32, color: Colors.grey),
-        ),
+        Text("$_cooldownSeconds", style: GoogleFonts.pressStart2p(fontSize: 32, color: Colors.grey)),
       ],
     );
   }

@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/data/material_database.dart';
+import 'package:myapp/models/dog_model.dart'; // Import Dog model
 import 'package:myapp/models/quest_model.dart';
-// import 'package:myapp/screens/training/training_session_screen.dart'; 
+import 'package:myapp/screens/training/training_session_screen.dart'; // Import the session screen
 
 class QuestDetailScreen extends StatelessWidget {
+  final Dog dog; // Dog object is now required to pass to the next screen
   final Quest quest;
 
-  const QuestDetailScreen({super.key, required this.quest});
+  const QuestDetailScreen({super.key, required this.dog, required this.quest});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      // 1. Background and Atmosphere
-      backgroundColor: const Color(0xFF3E2723), // Dark wood color
+      backgroundColor: const Color(0xFF3E2723),
       appBar: AppBar(
         title: Text('Quest Briefing', style: GoogleFonts.pressStart2p()),
         backgroundColor: Colors.transparent,
@@ -27,26 +28,22 @@ class QuestDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // --- Quest Parchment ---
             Expanded(
               child: Stack(
                 children: [
-                  // 2. Parchment background (using a simple container for now)
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFDE7), // Parchment color
+                      color: const Color(0xFFFFFDE7),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: const Color(0xFFD2B48C), width: 3),
                     ),
                   ),
-                  // Tack icon at the top center
                   Positioned(
                     top: -10,
                     left: 0,
                     right: 0,
                     child: Icon(Icons.push_pin, size: 40, color: Colors.brown.shade800),
                   ),
-                  // Content on the parchment
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
                     child: Column(
@@ -56,8 +53,6 @@ class QuestDetailScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         Text(quest.description, style: const TextStyle(fontSize: 16, height: 1.5)),
                         const Divider(height: 32),
-                        
-                        // 3. Emphasized Rewards
                         Text("획득 가능 재료", style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 12),
                         _buildRewardItems(),
@@ -68,8 +63,6 @@ class QuestDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
-            // --- Start Button ---
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 20),
@@ -77,12 +70,13 @@ class QuestDetailScreen extends StatelessWidget {
                 foregroundColor: Colors.black,
               ),
               onPressed: () {
-                // TODO: Navigate to TrainingSessionScreen
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('TrainingSessionScreen coming soon!')),
+                // --- NAVIGATION LOGIC ADDED HERE ---
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => TrainingSessionScreen(dog: dog, quest: quest),
+                  ),
                 );
               },
-              // 4. More thematic button text
               child: Text('퀘스트 수주!', style: GoogleFonts.pressStart2p(fontSize: 18)),
             ),
           ],
@@ -105,7 +99,7 @@ class QuestDetailScreen extends StatelessWidget {
         if (material == null) return const SizedBox.shrink();
 
         return Chip(
-          avatar: const Icon(Icons.build, size: 18), // Placeholder icon
+          avatar: const Icon(Icons.build, size: 18),
           label: Text('${material.name} x${entry.value}'),
         );
       }).toList(),

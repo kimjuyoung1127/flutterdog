@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myapp/models/dog_model.dart';
 import 'package:myapp/models/quest_model.dart';
-import 'package:myapp/screens/training/quest_detail_screen.dart'; // Import the detail screen
+import 'package:myapp/screens/training/quest_detail_screen.dart';
 import 'package:myapp/services/mock_ai_service.dart';
 import 'package:myapp/widgets/quest_card_widget.dart';
 
@@ -85,10 +85,10 @@ class _TrainingPageState extends State<TrainingPage> {
                 child: QuestCardWidget(
                   quest: quest,
                   onAccept: () {
-                    // --- NAVIGATION LOGIC ADDED HERE ---
+                    // Pass both the dog and the quest to the detail screen
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => QuestDetailScreen(quest: quest),
+                        builder: (context) => QuestDetailScreen(dog: widget.dog, quest: quest),
                       ),
                     );
                   },

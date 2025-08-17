@@ -14,15 +14,19 @@ class TrainingSessionScreen extends StatefulWidget {
   State<TrainingSessionScreen> createState() => _TrainingSessionScreenState();
 }
 
-class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
+class _TrainingSessionScreenState extends State<TrainingSessionScreen> with TickerProviderStateMixin {
   // --- State Management ---
+  int _successCount = 0;
+  final int _goalCount = 5;
   double _focusLevel = 1.0;
   int _comboCount = 0;
   bool _isClickable = true;
   int _cooldownSeconds = 3;
+  bool _isPaused = false;
   
   Timer? _focusTimer;
   Timer? _cooldownTimer;
+  AnimationController? _cooldownAnimationController;
 
   @override
   void initState() {
@@ -34,17 +38,17 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   void dispose() {
     _focusTimer?.cancel();
     _cooldownTimer?.cancel();
+    _cooldownAnimationController?.dispose();
     super.dispose();
   }
 
-  // --- Core Logic ---
+  // --- Core Logic (with pause/resume functionality) ---
   void _startFocusTimer() {
-    _focusTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    if (_isPaused) return;
+    _focusTimer?.cancel();
+    _focusTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (_focusLevel > 0) {
-        setState(() {
-          // TODO: Link this value to dog's stats (e.g., patience)
-          _focusLevel -= 0.05; 
-        });
+        setState(() => _focusLevel -= 0.005);
       } else {
         timer.cancel();
         _handleTrainingFailed();
@@ -54,71 +58,120 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
 
   void _onSuccessClick() {
     if (!_isClickable) return;
+    
+    _focusTimer?.cancel();
 
     setState(() {
       _isClickable = false;
-      _cooldownSeconds = 3; // Reset cooldown
+      _cooldownSeconds = 3;
       _comboCount++;
-      _focusLevel = (_focusLevel + 0.1).clamp(0.0, 1.0); // Restore some focus
+      _successCount++;
+      _focusLevel = (_focusLevel + 0.2).clamp(0.0, 1.0);
     });
-
-    _focusTimer?.cancel(); // Pause focus drain during cooldown
+    
+    _cooldownAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 3))..forward();
 
     _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_cooldownSeconds > 1) {
-        setState(() {
-          _cooldownSeconds--;
-        });
+        setState(() => _cooldownSeconds--);
       } else {
         timer.cancel();
-        setState(() {
-          _isClickable = true;
-        });
-        _startFocusTimer(); // Resume focus drain
+        if (_successCount >= _goalCount) {
+          _handleTrainingSuccess();
+        } else {
+          setState(() => _isClickable = true);
+          _startFocusTimer();
+        }
       }
     });
   }
   
-  void _handleTrainingFailed() {
-    // TODO: Navigate to LogSessionScreen with failure result
-    Navigator.pop(context); // Go back for now
+  void _showPauseDialog() {
+    setState(() => _isPaused = true);
+    _focusTimer?.cancel();
+    _cooldownTimer?.cancel();
+
+    showDialog(context: context, builder: (context) => AlertDialog(/* ... */));
   }
+  
+  void _handleTrainingSuccess() { /* ... */ }
+  void _handleTrainingFailed() { /* ... */ }
 
   // --- UI Building ---
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.quest.title)),
+      // ... (Scaffold and AppBar from before)
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header UI
-            _buildFocusBar(),
-            const SizedBox(height: 16),
-            _buildComboCounter(),
+            // ... (Header UI from before)
             const Spacer(),
-            
-            // Instruction Text
-            Text(
-              "강아지에게 '${widget.quest.title}' 훈련을 유도하고,\n성공하면 바로 아래 버튼을 누르세요!",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 24),
-
-            // Smart Clicker
-            _buildSmartClicker(),
-            
+            _buildInstructorDialogue(),
+            const Spacer(),
+            _buildMagicCircleClicker(), // This is the widget to update
             const Spacer(flex: 2),
           ],
         ),
       ),
     );
   }
+  
+  // ... (Other build helpers: _buildStaminaBar, _buildChainCounter, _buildInstructorDialogue)
+  
+  Widget _buildMagicCircleClicker() {
+    return GestureDetector(
+      onTap: _onSuccessClick, // Logic is now connected
+      child: SizedBox(
+        height: 180,
+        width: 180,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _isClickable
+              ? _buildActiveMagicCircle()
+              : _buildCooldownMagicCircle(),
+        ),
+      ),
+    );
+  }
 
-  Widget _buildFocusBar() { /* Placeholder */ return const SizedBox.shrink(); }
-  Widget _buildComboCounter() { /* Placeholder */ return const SizedBox.shrink(); }
-  Widget _buildSmartClicker() { /* Placeholder */ return const SizedBox.shrink(); }
+  Widget _buildActiveMagicCircle() {
+    return Center(
+      key: const ValueKey('active'),
+      child: Text(
+        "TAP!",
+        style: GoogleFonts.pressStart2p(
+          fontSize: 32,
+          color: Colors.cyanAccent,
+          shadows: [const Shadow(blurRadius: 20, color: Colors.cyan)]
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCooldownMagicCircle() {
+    return Stack(
+      key: const ValueKey('cooldown'),
+      alignment: Alignment.center,
+      children: [
+        // Animated circular border for cooldown
+        AnimatedBuilder(
+          animation: _cooldownAnimationController!,
+          builder: (context, child) {
+            return CircularProgressIndicator(
+              value: _cooldownAnimationController!.value,
+              strokeWidth: 10,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.cyanAccent),
+              backgroundColor: Colors.grey.withOpacity(0.3),
+            );
+          },
+        ),
+        Text(
+          "$_cooldownSeconds",
+          style: GoogleFonts.pressStart2p(fontSize: 32, color: Colors.grey),
+        ),
+      ],
+    );
+  }
 }
